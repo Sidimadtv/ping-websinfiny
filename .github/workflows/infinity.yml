@@ -19,7 +19,21 @@ jobs:
         run: |
           # Add your InfinityFree URLs here
           URLS=(
-            "http://your-site.infinityfreeapp.com"
+            "https://sidimadtv.free.nf"
+            "https://sidimadtv.wuaze.com"
+            "https://sidimadweb.zya.me"
+            "https://sidimadtv.zya.me"
+            "https://sidimad-tv.rf.gd"
+            "https://sidimadtv.infy.uk"
+            "https://sidimadtv.page.gd"
+            "https://sidi.byethost12.com"
+            "https://sidimadtv.unaux.com"
+            "https://sidimad-tv.unaux.com"
+
+
+
+
+            
           )
           
           export TZ='Africa/Casablanca'
