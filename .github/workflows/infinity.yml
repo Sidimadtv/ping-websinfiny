@@ -1,0 +1,75 @@
+name: InfinityFree Keep-Alive
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Ping and Build Dashboard
+        run: |
+          # Add your InfinityFree URLs here
+          URLS=(
+            "http://your-site.infinityfreeapp.com"
+          )
+          
+          export TZ='Africa/Casablanca'
+          LOCAL_TIME=$(date +"%Y-%m-%d %I:%M:%S %p")
+          
+          # Start HTML
+          echo "<html><head><title>Infinity Monitor</title>" > index.html
+          echo "<meta name='viewport' content='width=device-width, initial-scale=1'>" >> index.html
+          echo "<meta http-equiv='refresh' content='300'>" >> index.html
+          # Anti-cache tags
+          echo "<meta http-equiv='cache-control' content='no-cache'>" >> index.html
+          echo "<style>
+            body{font-family:sans-serif; background:#0f172a; color:white; text-align:center; padding:20px;}
+            .grid{display:flex; flex-wrap:wrap; justify-content:center; gap:15px; margin-top:20px;}
+            .card{background:#1e293b; padding:20px; border-radius:12px; width:280px; border:1px solid #334155;}
+            .online{color:#4ade80; font-weight:bold;}
+            .offline{color:#f87171; font-weight:bold;}
+            .btn{display:inline-block; background:#38bdf8; color:#0f172a; padding:8px 15px; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:10px;}
+            .heart-box{background:#1e293b; padding:15px; border-radius:50px; display:inline-flex; align-items:center; border:2px solid #ef4444; margin-bottom: 20px;}
+            .heart {color: #ef4444; font-size: 1.5em; margin-right: 10px; animation: beat .8s infinite alternate;}
+            @keyframes beat { to { transform: scale(1.1); } }
+          </style>" >> index.html
+          echo "</head><body>" >> index.html
+          echo "<h1>🌐 InfinityFree Monitor</h1>" >> index.html
+          
+          echo "<div class='heart-box'><span class='heart'>❤️</span><div><span style='font-size:0.7em; color:#94a3b8; display:block;'>LAST PING</span><span style='font-weight:bold;'>$LOCAL_TIME</span></div></div>" >> index.html
+          echo "<div class='grid'>" >> index.html
+
+          for url in "${URLS[@]}"; do
+            # Using -A (User-Agent) to bypass free hosting bot protection
+            STATUS=$(curl -o /dev/null -s -w "%{http_code}" -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --max-time 15 "$url")
+            
+            echo "<div class='card'>" >> index.html
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
+              echo "<span class='online'>● ONLINE ($STATUS)</span>" >> index.html
+            else
+              echo "<span class='offline'>○ OFFLINE ($STATUS)</span>" >> index.html
+            fi
+            echo "<p style='font-size:0.8em; color:#94a3b8;'>$url</p>" >> index.html
+            echo "<a href='$url' target='_blank' class='btn'>Manual Handshake 🤝</a>" >> index.html
+            echo "</div>" >> index.html
+          done
+
+          echo "</div></body></html>" >> index.html
+          echo "Last Infinity Ping: $LOCAL_TIME" > heartbeat_infinity.txt
+
+      - name: Deploy
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html heartbeat_infinity.txt
+          git commit -m "Infinity Refresh: $(date)" || echo "No changes"
+          git push
