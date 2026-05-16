@@ -28,12 +28,7 @@ jobs:
             "https://sidimadtv.page.gd"
             "https://sidi.byethost12.com"
             "https://sidimadtv.unaux.com"
-            "https://sidimad-tv.unaux.com"
-
-
-
-
-            
+            "https://sidimad-tv.unaux.com"      
           )
           
           export TZ='Africa/Casablanca'
